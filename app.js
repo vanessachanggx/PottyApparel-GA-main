@@ -97,7 +97,9 @@ app.post('/updateCartProduct/:id', cartController.updateCartProduct);
 
 //Order
 app.get('/checkout', orderController.getCheckOut);
-app.get('/invoice/:paymentMethod/:orderId/:transactionId', orderController.generateInvoice);
+app.get('/invoice/:orderId', orderController.generateInvoice);
+app.get('/order-success', orderController.handleOrderSuccess);
+
 
 
 //Paypal

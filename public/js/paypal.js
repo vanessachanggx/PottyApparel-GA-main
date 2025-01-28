@@ -41,13 +41,15 @@ paypal.Buttons({
             });
     
             const orderData = await response.json();
-            const transaction = orderData.purchase_units[0].payments.captures[0];
-            window.location.href = `/invoice/PayPal/${orderData.id}/${transaction.id}`;
+            
+            // Redirect to a success page instead of the invoice directly
+            window.location.href = `/order-success?orderId=${orderData.id}`;
         } catch (error) {
             console.error("Error processing payment:", error);
             alert("Payment error occurred");
         }
-    },
+    }
+    ,
 
     onError: function(err) {
         console.error("PayPal Error:", err);

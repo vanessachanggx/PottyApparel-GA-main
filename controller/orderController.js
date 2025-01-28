@@ -33,7 +33,7 @@ exports.getCheckOut = (req, res) => {
 };
 
 exports.generateInvoice = (req, res) => {
-    const { paymentMethod, orderId, transactionId } = req.params;
+    const { orderId } = req.params;
     
     if (!req.session.user) {
         return res.redirect('/login');
@@ -47,23 +47,69 @@ exports.generateInvoice = (req, res) => {
         FROM cart WHERE UserID = ?
     `;
     
-    db.query(sql, [userId], (error, results) => {
+    db.query(sql, [userId], (error, cartResults) => {
         if (error) {
             console.error('Database error:', error);
             return res.status(500).send('Error generating invoice');
         }
 
-        const totalAmount = results.reduce((sum, item) => 
-            sum + (item.Price * item.Quantity), 0
+        const totalAmount = cartResults.reduce((sum, item) => 
+            sum + (Number(item.Price) * item.Quantity), 0
         );
 
-        res.render('invoice', {
-            orderId: orderId,
-            transactionId: transactionId,
-            cart: results,
-            totalAmount: totalAmount,
-            user: req.session.user,
-            paymentMethod: paymentMethod
+        // Create order record
+        const orderSql = `
+            INSERT INTO \`order\` (UserID, Quantity, TotalAmount) 
+            VALUES (?, ?, ?)
+        `;
+
+        db.query(orderSql, [userId, cartResults.length, totalAmount], (orderError, orderResult) => {
+            if (orderError) {
+                console.error('Error creating order:', orderError);
+                return res.status(500).send('Error creating order');
+            }
+
+            const newOrderId = orderResult.insertId;
+
+            // Insert order items
+            const orderItemValues = cartResults.map(item => [
+                newOrderId,
+                item.ProductId,
+                item.Quantity,
+                item.Price
+            ]);
+
+            const orderItemSql = `
+                INSERT INTO orderitem (OrderID, ProductID, Quantity, Price)
+                VALUES ?
+            `;
+
+            db.query(orderItemSql, [orderItemValues], (itemError) => {
+                if (itemError) {
+                    console.error('Error creating order items:', itemError);
+                    return res.status(500).send('Error creating order items');
+                }
+
+                // Clear cart after successful order
+                const clearCartSql = `DELETE FROM cart WHERE UserID = ?`;
+                db.query(clearCartSql, [userId]);
+
+                // Add paymentMethod when rendering
+                res.render('invoice', {
+                    orderId: newOrderId,
+                    cart: cartResults,
+                    totalAmount: totalAmount,
+                    user: req.session.user,
+                    paymentMethod: 'PayPal' // Add default payment method or get it from your payment processing logic
+                });
+            });
         });
     });
 };
+
+exports.handleOrderSuccess = (req, res) => {
+    const { orderId } = req.query;
+    // Redirect to invoice page
+    res.redirect(`/invoice/${orderId}`);
+};
+
