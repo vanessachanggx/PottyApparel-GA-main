@@ -1,0 +1,176 @@
+<style>
+    /* General Navbar Styling */
+    .navbar {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar-brand {
+        color: #ffffff;
+        font-family: 'Parisienne';
+        font-weight: bold;
+        font-size: 4rem;
+    }
+
+    .navbar-nav .nav-link {
+        color: #ffffff;
+        margin-right: 1rem;
+        transition: color 0.3s ease;
+        font-size: 1.2rem;
+    }
+
+    .navbar-nav .nav-link:hover {
+        color: #000000;
+    }
+
+    .navbar-nav .nav-link i {
+        font-size: 1.5rem;
+    }
+
+    .btn-cart {
+        color: #ffffff;
+        background-color: #000000;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-cart:hover {
+        background-color: #000000;
+    }
+
+    .navbar-toggler-icon {
+        background-color: #ffffff;
+    }
+
+    .search-bar {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        max-width: 500px;
+    }
+
+    .search-bar input {
+        flex: 1;
+        border: 1px solid #ccc;
+        border-radius: 5px 0 0 5px;
+        padding: 5px;
+    }
+
+    .search-bar button {
+        border: none;
+        background-color: white;
+        color: black;
+        border-radius: 0 5px 5px 0;
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+
+    .search-bar button:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+
+    /* Mega Menu Styling */
+    .mega-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background-color: #ffffff;
+        padding: 20px;
+        display: none;
+        width: 300px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+    }
+
+    .mega-menu ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .mega-menu ul li {
+        margin-bottom: 10px;
+    }
+
+    .mega-menu ul li a {
+        text-decoration: none;
+        color: #000;
+        font-size: 1rem;
+    }
+
+    .mega-menu ul li a:hover {
+        color: #3f2c1b;
+        font-weight: bold;
+    }
+
+    .nav-item:hover .mega-menu {
+        display: block;
+    }
+</style>
+
+<nav class="navbar navbar-expand-sm" style="background-color: #3f2c1b;">
+    <div class="container-fluid">
+        <!-- Company Logo / Brand -->
+        <a class="navbar-brand" href="/">
+            <img src="/images/logo.jpg" alt="P" style="height: 50px; width: auto;">
+        </a>
+
+        <!-- Mobile Menu Button -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Navbar Links -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <!-- Left-Side Links with Mega Menu -->
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item position-relative">
+                    <a class="nav-link" href="#">Shop</a>
+                    <!-- Mega Menu -->
+                    <div class="mega-menu">
+                        <h5>Categories</h5>
+                        <ul>
+                            <li><a href="/category/1">Tops</a></li>
+                            <li><a href="/category/2">Bottoms</a></li>
+                            <li><a href="#">Dresses</a></li>
+                            <li><a href="#">Outerwear</a></li>
+                            <li><a href="#">Accessories</a></li>
+                            <li><a href="/categories">View All Categories</a></li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Best Sellers</a>
+                </li>
+            </ul>
+
+            <!-- Center Search Bar -->
+            <div class="search-bar">
+                <input type="text" placeholder="Search">
+                <button><i class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+
+            <!-- Right-Side Links -->
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fa-regular fa-heart"></i></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/cart"><i class="fa fa-cart-shopping"></i></a>
+                </li>
+                <div class="ms-auto">
+                    <button class="btn btn-outline-light" type="button" id="navbarDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fa-regular fa-user"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="/account">Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/pottyApparels">Logout</a></li>
+                    </ul>
+                </div>
+            </ul>
+        </div>
+    </div>
+</nav>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Category - POTTY APPARELs</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href='https://fonts.googleapis.com/css?family=Parisienne' rel='stylesheet'>
+    <link href='https://fonts.googleapis.com/css?family=Public Sans' rel='stylesheet'>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        body {
+            background-color: #e6e2df;
+            font-family: 'Public Sans';
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            background-color: #fff;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        input[type="submit"], .btn-primary {
+            background-color: #6C4F3D;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 14px 20px;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+            width: 100%;
+            display: block;
+            margin-top: 20px;
+        }
+
+        input[type="submit"]:hover, .btn-primary:hover {
+            background-color: #5b3e2b;
+        }
+
+        .file-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .file-input-group input[type="file"] {
+            padding: 5px;
+            border: none;
+            border-radius: 8px;
+        }
+
+        small {
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Add Category</h1>
+        <form action="/admin/categories" method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="CategoryName" class="form-label">Category Name</label>
+                <input type="text" id="CategoryName" name="Name" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="Description" class="form-label">Description</label>
+                <textarea id="Description" name="Description" class="form-control" rows="3" required></textarea>
+            </div>
+
+            <div class="file-input-group mb-3">
+                <label class="form-label">Upload Category Image</label>
+                <input type="file" name="Image" class="form-control" accept="image/*">
+                <small class="text-muted">Optional: Upload an image to represent the category.</small>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Add Category</button>
+        </form>
+    </div>
+</body>
+</html>

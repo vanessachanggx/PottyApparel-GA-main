@@ -1,0 +1,107 @@
+<style>
+    /* General Navbar Styling */
+    .navbar {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar-brand {
+        color: #ffffff;
+        font-family: 'Public Sans';
+        font-size: 2rem;
+    }
+
+    .navbar-nav .nav-link {
+        color: #ffffff;
+        margin-right: 1rem;
+        transition: color 0.3s ease;
+        font-size: 1.2rem; /* Adjust text size of nav links */
+    }
+
+    .navbar-nav .nav-link:hover {
+        color: #000000;
+    }
+
+    .navbar-nav .nav-link i {
+        font-size: 1.5rem; /* Adjust size of icons */
+    }
+
+    .btn-cart {
+        color: #ffffff;
+        background-color: #000000;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-cart:hover {
+        background-color: #000000;
+    }
+
+    .navbar-toggler-icon {
+        background-color: #ffffff;
+    }
+
+</style>
+
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #3f2c1b;">
+    <div class="container-fluid">
+        <!-- Logo / Brand -->
+        <a class="navbar-brand" href="/adminpage">
+            <img src="/images/logo.jpg" alt="P" style="height: 50px; width: auto;"></a>
+
+        <!-- Admin Dropdown (Avatar or Name) -->
+        <div class="ms-auto">
+            <button class="btn btn-outline-light" type="button" id="navbarDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fa-regular fa-user"></i><br>Admin </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="/admin-profile">Profile</a></li>
+                <li><a class="dropdown-item" href="/admin-settings">Settings</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="/logout">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="navbar navbar-expand-lg navbar-light" style="background-color: #3f2c1b;">
+    <div class="container-fluid">
+        
+        <ul class="navbar-nav me-auto">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="productsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Manage Products
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="productsDropdown">
+                    <li><a class="dropdown-item" href="/adminpage">View Products</a></li>
+                    <li><a class="dropdown-item" href="/productForm">Add Product</a></li>
+                </ul>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="productsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Manage Categories
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="productsDropdown">
+                    <li><a class="dropdown-item" href="/admin/categories">View Categories</a></li>
+                    <li><a class="dropdown-item" href="/addCategoryForm">Add Categories</a></li>
+                </ul>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="manageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Manage Users
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="manageDropdown">
+                    <li><a class="dropdown-item" href="/admin/users">View Users</a></li>
+                    <li><a class="dropdown-item" href="/admin/add-user">Add User</a></li>
+                </ul>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/orders">Orders</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/analytics">Sales</a>
+            </li>
+        </ul>
+    </div>
+</div>
