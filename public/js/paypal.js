@@ -39,18 +39,13 @@ paypal.Buttons({
                     "Content-Type": "application/json",
                 }
             });
-
+    
             const orderData = await response.json();
-            
-            if (orderData.error) {
-                throw new Error(orderData.error);
-            }
-
             const transaction = orderData.purchase_units[0].payments.captures[0];
-            window.location.href = `/checkout/Paypal/${orderData.id}/${transaction.id}`;
+            window.location.href = `/invoice/PayPal/${orderData.id}/${transaction.id}`;
         } catch (error) {
             console.error("Error processing payment:", error);
-            alert("There was an error processing your payment. Please try again.");
+            alert("Payment error occurred");
         }
     },
 

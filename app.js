@@ -96,7 +96,9 @@ app.get('/removeFromCart/:id', cartController.removeFromCart);
 app.post('/updateCartProduct/:id', cartController.updateCartProduct);
 
 //Order
-app.get('/checkout', orderController.getCheckOut)
+app.get('/checkout', orderController.getCheckOut);
+app.get('/invoice/:paymentMethod/:orderId/:transactionId', orderController.generateInvoice);
+
 
 //Paypal
 app.use(express.json());

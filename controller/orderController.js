@@ -32,3 +32,38 @@ exports.getCheckOut = (req, res) => {
     });
 };
 
+exports.generateInvoice = (req, res) => {
+    const { paymentMethod, orderId, transactionId } = req.params;
+    
+    if (!req.session.user) {
+        return res.redirect('/login');
+    }
+
+    const userId = req.session.user.UserID;
+    
+    // Get cart items for invoice
+    const sql = `
+        SELECT ProductId, Name, Image, Price, Size, Quantity 
+        FROM cart WHERE UserID = ?
+    `;
+    
+    db.query(sql, [userId], (error, results) => {
+        if (error) {
+            console.error('Database error:', error);
+            return res.status(500).send('Error generating invoice');
+        }
+
+        const totalAmount = results.reduce((sum, item) => 
+            sum + (item.Price * item.Quantity), 0
+        );
+
+        res.render('invoice', {
+            orderId: orderId,
+            transactionId: transactionId,
+            cart: results,
+            totalAmount: totalAmount,
+            user: req.session.user,
+            paymentMethod: paymentMethod
+        });
+    });
+};
