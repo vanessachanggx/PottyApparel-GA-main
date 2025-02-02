@@ -116,15 +116,11 @@
                     <hr>
                     <div class="d-flex justify-content-between">
                         <p>Cart Total</p>
-                        <p>$<%= totalAmount.toFixed(2) %></p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <p>Delivery Fee</p>
-                        <p>$3.00</p>
+                        <p>$<%= Number(totalAmount).toFixed(2) %></p>
                     </div>
                     <div class="d-flex justify-content-between total">
                         <p>Total</p>
-                        <p>$<%= (totalAmount + 3).toFixed(2) %></p>
+                        <p>$<%= Number(totalAmount).toFixed(2) %></p>
                     </div>
                 </div>
 

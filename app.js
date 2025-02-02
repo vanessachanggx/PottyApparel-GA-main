@@ -94,21 +94,19 @@ app.get('/cart', cartController.getCart);
 app.post('/cart',upload.single('Image'), cartController.addToCartForm);
 app.get('/removeFromCart/:id', cartController.removeFromCart);
 app.post('/updateCartProduct/:id', cartController.updateCartProduct);
+app.get('/checkout', cartController.getCheckOut);
 
 //Order
-app.get('/checkout', orderController.getCheckOut);
-app.get('/invoice/:orderId', orderController.generateInvoice);
-app.get('/order-success', orderController.handleOrderSuccess);
-
+app.get('/myOrders', orderController.getmyOrders);
+app.get('/orders', orderController.getOrders); // for admin
 
 
 //Paypal
 app.use(express.json());
 
-app.post("/api/orders",paypalController.createOrderHandler);
-app.post("/api/orders/:orderID/capture",paypalController.captureOrderHandler);
-app.get("/checkout/:paymentMethod/:orderId/:transactionId", orderController.getCheckOut)
-
+app.post('/api/orders', paypalController.createOrderHandler);
+app.post('/api/orders/:orderID/capture', paypalController.captureOrderHandler);
+app.get('/checkout/Paypal/:orderId/:transactionId', cartController.getCheckOut);
 
 app.listen(3000, () => {
     console.log('Server is running on http://localhost:3000');

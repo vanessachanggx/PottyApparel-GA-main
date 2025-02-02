@@ -63,17 +63,48 @@
 </style>
 <body>
     <%- include('partial/navbar.ejs') %>
-
-    <div class="container mt-5 account-container">
-        <h1 class="text-center mb-4" style="color: #333;">Welcome, <strong><%= user.FirstName %></strong>!</h1>
-        <div class="card mx-auto" style="width: 28rem;">
-            <img src="/images/<%= user.Image %>" class="card-img-top" alt="User Image">  
-            <div class="card-body text-center">
-                <p class="card-text">Email: <%= user.Email %></p>
-                <p class="card-text">Phone Number: <%= user.PhoneNumber %></p>
-                <a href="/editAccount" class="btn btn-custom">Edit Details</a>
+        <div class="container mt-5 account-container">
+            <div class="container mt-5 account-container">
+                <h1 class="text-center mb-4" style="color: #333;">Welcome, <strong><%= user.FirstName %></strong>!</h1>
+            <div class="card mx-auto" style="width: 28rem;">
+                <div class="card mx-auto" style="width: 28rem;">
+                    <img src="/images/<%= user.Image %>" class="card-img-top" alt="User Image">  
+                    <div class="card-body text-center">
+                        <p class="card-text">Email: <%= user.Email %></p>
+                        <p class="card-text">Phone Number: <%= user.PhoneNumber %></p>
+                        <a href="/editAccount" class="btn btn-custom">Edit Details</a>
+                    </div>
+                </div>
+            </div>
+        
+            <!-- Address Button -->
+            <a href="/addAddress" class="btn btn-address mt-3">Add Your Address</a>
+        
+            <!-- Add Invoice Section -->
+            <div class="orders-section mt-4">
+                <h3 class="text-center mb-3">My Orders</h3>
+                <div class="order-list">
+                    <% if (orders && orders.length > 0) { %>
+                        <% orders.forEach(order => { %>
+                            <div class="order-card mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Order #<%= order.OrderID %></h5>
+                                        <p class="card-text text-muted">Transaction ID: <%= order.TransactionID %></p>
+                                        <p class="card-text">Date: <%= new Date(order.CreatedAt).toLocaleDateString() %></p>
+                                        <p class="card-text">Total Amount: $<%= order.TotalAmount %></p>
+                                        <a href="/invoice/<%= order.OrderID %>" class="btn btn-custom">View Invoice</a>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <p class="text-center">No orders found</p>
+                    <% } %>
+                </div>
             </div>
         </div>
+        
 
         <br>
         <!-- Address Button -->

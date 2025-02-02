@@ -1,115 +1,67 @@
-const db = require('../db'); // Ensure db.js exports the correct MySQL connection
+const db = require('../db');
 
-exports.getCheckOut = (req, res) => {
+exports.getmyOrders = (req, res) => {
     if (!req.session.user) {
-        req.flash('error', 'You must be logged in to view your account.');
         return res.redirect('/login');
     }
 
-    const userId = req.session.user.UserID; 
-    console.log('User ID from session: ', userId);
-
     const sql = `
-        SELECT ProductId, Name, Image, Price, Size, Quantity 
-        FROM cart
+        SELECT oi.OrderItemID, p.Name, p.Image, p.Price, oi.Quantity, oi.Size
+        FROM orderitem oi
+        JOIN product p ON p.ProductID = oi.ProductID
+        ORDER BY oi.OrderItemID DESC
     `;
 
-    db.query(sql, [userId], (error, results) => {
+    db.query(sql, (error, results) => {
         if (error) {
-            console.error('Database error:', error);
-            return res.status(500).send('Error retrieving products');
+            return res.status(500).send('Error retrieving orders');
         }
 
         if (results.length > 0) {
-            console.log('All products:', results);
+            const totalAmount = results.reduce((sum, item) => 
+                sum + (item.Price * item.Quantity), 0
+            );
 
-            let totalAmount = results.reduce((sum, item) => sum + item.Price * item.Quantity, 0);
-
-            res.render('checkout', { cart: results, totalAmount: totalAmount, msg: "" });
+            res.render('viewOrders', { 
+                orders: results, 
+                totalAmount: totalAmount, 
+                msg: "" 
+            });
         } else {
-            res.render('checkout', { cart: [], totalAmount: 0, msg: "No products in cart" });
+            res.render('viewOrders', { msg: "No orders" });
         }
     });
 };
 
-exports.generateInvoice = (req, res) => {
-    const { orderId } = req.params;
-    
-    if (!req.session.user) {
-        return res.redirect('/login');
+exports.getOrders = (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'admin') {
+        return res.redirect('/401');
     }
 
-    const userId = req.session.user.UserID;
-    
-    // Get cart items for invoice
     const sql = `
-        SELECT ProductId, Name, Image, Price, Size, Quantity 
-        FROM cart WHERE UserID = ?
+        SELECT oi.OrderItemID, p.Name, p.Image, p.Price, oi.Quantity, oi.Size
+        FROM orderitem oi
+        JOIN product p ON p.ProductID = oi.ProductID
+        ORDER BY oi.OrderItemID DESC
     `;
-    
-    db.query(sql, [userId], (error, cartResults) => {
+
+    db.query(sql, (error, results) => {
         if (error) {
-            console.error('Database error:', error);
-            return res.status(500).send('Error generating invoice');
+            return res.status(500).send('Error retrieving orders');
         }
 
-        const totalAmount = cartResults.reduce((sum, item) => 
-            sum + (Number(item.Price) * item.Quantity), 0
-        );
+        if (results.length > 0) {
+            const totalAmount = results.reduce((sum, item) => 
+                sum + (item.Price * item.Quantity), 0
+            );
 
-        // Create order record
-        const orderSql = `
-            INSERT INTO \`order\` (UserID, Quantity, TotalAmount) 
-            VALUES (?, ?, ?)
-        `;
-
-        db.query(orderSql, [userId, cartResults.length, totalAmount], (orderError, orderResult) => {
-            if (orderError) {
-                console.error('Error creating order:', orderError);
-                return res.status(500).send('Error creating order');
-            }
-
-            const newOrderId = orderResult.insertId;
-
-            // Insert order items
-            const orderItemValues = cartResults.map(item => [
-                newOrderId,
-                item.ProductId,
-                item.Quantity,
-                item.Price
-            ]);
-
-            const orderItemSql = `
-                INSERT INTO orderitem (OrderID, ProductID, Quantity, Price)
-                VALUES ?
-            `;
-
-            db.query(orderItemSql, [orderItemValues], (itemError) => {
-                if (itemError) {
-                    console.error('Error creating order items:', itemError);
-                    return res.status(500).send('Error creating order items');
-                }
-
-                // Clear cart after successful order
-                const clearCartSql = `DELETE FROM cart WHERE UserID = ?`;
-                db.query(clearCartSql, [userId]);
-
-                // Add paymentMethod when rendering
-                res.render('invoice', {
-                    orderId: newOrderId,
-                    cart: cartResults,
-                    totalAmount: totalAmount,
-                    user: req.session.user,
-                    paymentMethod: 'PayPal' // Add default payment method or get it from your payment processing logic
-                });
+            res.render('viewOrders', { 
+                orders: results, 
+                totalAmount: totalAmount, 
+                msg: "" 
             });
-        });
+        } else {
+            res.render('viewOrders', { msg: "No orders" });
+        }
     });
 };
-
-exports.handleOrderSuccess = (req, res) => {
-    const { orderId } = req.query;
-    // Redirect to invoice page
-    res.redirect(`/invoice/${orderId}`);
-};
-

@@ -98,30 +98,31 @@ exports.login = (req, res) => {
 exports.renderAccount = (req, res) => {
     if (!req.session.user) {
         req.flash('error', 'You must be logged in to view your account.');
-        return res.redirect('/login');  // Redirect to login if not logged in
+        return res.redirect('/login');
     }
 
-    const userId = req.session.user.UserID;  // Safely access userId from the session
+    const userId = req.session.user.UserID;
 
-    console.log('User ID from session: ', userId);  // Debugging - Log userId
+    // Get user orders with proper backticks
+    const orderSql = `
+        SELECT * FROM \`order\` 
+        WHERE UserID = ? 
+        ORDER BY CreatedAt DESC
+    `;
 
-    const sql = 'SELECT * FROM user WHERE UserID = ?';
-    db.query(sql, [userId], (err, results) => {
+    db.query(orderSql, [userId], (err, orderResults) => {
         if (err) {
-            console.error('Error fetching user data: ', err.message);
-            return res.status(500).send('Error fetching user data.');
+            console.error('Error fetching orders: ', err);
+            return res.status(500).send('Error fetching orders.');
         }
 
-        if (results.length > 0) {
-            console.log('User data from database: ', results[0]);  // Debugging - Log results
-            res.render('account', { user: results[0] });
-        } else {
-            console.error('No user found with UserID: ', userId);  // Debugging - No user found
-            req.flash('error', 'User not found.');
-            res.redirect('/');
-        }
+        res.render('account', {
+            user: req.session.user,
+            orders: orderResults
+        });
     });
-}; 
+};
+
 
 exports.renderEditAccount = (req, res) => {
     if (!req.session.user) {

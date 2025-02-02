@@ -1,3 +1,5 @@
+const db = require('../db');
+
 const PAYPAL_CLIENT_ID = "ATQQuSzP7fhPQBdI857o6No3EjYfFdblxq0No5LNnSonJRQwjPq_n3DUOK80Qdqve0PtrEvnGjuOcwcB";
 const PAYPAL_CLIENT_SECRET = "EL76NowvANXm1PVeAmoTuSG7R1Fbnk1ftjXaoM9o2VzThOxFVX3OJfZJ9ZbR3AZSkk4xILFaYXxiDLFr";
 const BASE = "https://api-m.sandbox.paypal.com";
@@ -5,46 +7,28 @@ const BASE = "https://api-m.sandbox.paypal.com";
 async function generateAccessToken() {
     const auth = Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_CLIENT_SECRET}`).toString("base64");
     
-    try {
-        const response = await fetch(`${BASE}/v1/oauth2/token`, {
-            method: "POST",
-            headers: {
-                Authorization: `Basic ${auth}`,
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: "grant_type=client_credentials",
-        });
+    const response = await fetch(`${BASE}/v1/oauth2/token`, {
+        method: "POST",
+        headers: {
+            Authorization: `Basic ${auth}`,
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: "grant_type=client_credentials",
+    });
 
-        if (!response.ok) {
-            throw new Error(`Failed to generate token: ${response.status}`);
-        }
-
-        const data = await response.json();
-        return data.access_token;
-    } catch (error) {
-        console.error("Failed to generate Access Token:", error);
-        throw error;
-    }
+    const data = await response.json();
+    return data.access_token;
 }
 
 async function handleResponse(response) {
-    try {
-        const jsonResponse = await response.json();
-        return {
-            jsonResponse,
-            httpStatusCode: response.status,
-        };
-    } catch (err) {
-        const errorMessage = await response.text();
-        throw new Error(errorMessage);
-    }
+    const jsonResponse = await response.json();
+    return {
+        jsonResponse,
+        httpStatusCode: response.status,
+    };
 }
 
 async function createOrder(cart) {
-    if (!Array.isArray(cart) || cart.length === 0) {
-        throw new Error("Invalid cart data");
-    }
-
     const processed_items = cart.map(item => ({
         name: item.Name,
         description: `Size: ${item.Size}`,
@@ -92,10 +76,6 @@ async function createOrder(cart) {
 }
 
 async function captureOrder(orderID) {
-    if (!orderID) {
-        throw new Error("Order ID is required");
-    }
-
     const accessToken = await generateAccessToken();
     const url = `${BASE}/v2/checkout/orders/${orderID}/capture`;
 
@@ -117,8 +97,8 @@ exports.createOrderHandler = async (req, res) => {
             return res.status(400).json({ error: "Invalid cart data" });
         }
 
-        const { jsonResponse, httpStatusCode } = await createOrder(cart);
-        res.status(httpStatusCode).json(jsonResponse);
+        const { jsonResponse } = await createOrder(cart);
+        res.json(jsonResponse);
     } catch (error) {
         console.error("Failed to create order:", error);
         res.status(500).json({ error: "Failed to create order." });
@@ -128,12 +108,49 @@ exports.createOrderHandler = async (req, res) => {
 exports.captureOrderHandler = async (req, res) => {
     try {
         const { orderID } = req.params;
-        if (!orderID) {
-            return res.status(400).json({ error: "Order ID is required" });
+        const { jsonResponse } = await captureOrder(orderID);
+
+        // Get transaction details
+        const transaction = jsonResponse.purchase_units[0].payments.captures[0];
+        
+        // Insert order items into database
+        const cart = await new Promise((resolve, reject) => {
+            db.query('SELECT * FROM cart WHERE UserID = ?', [req.session.user.UserID], (error, results) => {
+                if (error) reject(error);
+                else resolve(results);
+            });
+        });
+
+        // Insert each cart item as an order item
+        const orderItemValues = cart.map(item => [
+            item.ProductID,
+            item.Quantity,
+            item.Price,
+            item.Size
+        ]);
+
+        if (orderItemValues.length > 0) {
+            await new Promise((resolve, reject) => {
+                db.query(
+                    'INSERT INTO orderitem (ProductID, Quantity, Price, Size) VALUES ?',
+                    [orderItemValues],
+                    (error) => {
+                        if (error) reject(error);
+                        else resolve();
+                    }
+                );
+            });
         }
 
-        const { jsonResponse, httpStatusCode } = await captureOrder(orderID);
-        res.status(httpStatusCode).json(jsonResponse);
+        // Clear cart after successful order creation
+        await new Promise((resolve, reject) => {
+            db.query('DELETE FROM cart WHERE UserID = ?', [req.session.user.UserID], (error) => {
+                if (error) reject(error);
+                else resolve();
+            });
+        });
+
+        res.json(jsonResponse);
     } catch (error) {
         console.error("Failed to capture order:", error);
         res.status(500).json({ error: "Failed to capture order." });

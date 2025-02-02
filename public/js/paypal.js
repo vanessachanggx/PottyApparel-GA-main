@@ -5,11 +5,9 @@ paypal.Buttons({
         color: "gold",
         label: "paypal",
     },
-
     createOrder: async function() {
         try {
             const cartProducts = JSON.parse(document.getElementById("cartProducts").value);
-            
             const response = await fetch("/api/orders", {
                 method: "POST",
                 headers: {
@@ -21,16 +19,12 @@ paypal.Buttons({
             });
 
             const orderData = await response.json();
-            if (!orderData.id) {
-                throw new Error("Failed to create order");
-            }
             return orderData.id;
         } catch (error) {
             console.error("Error creating order:", error);
             throw error;
         }
     },
-
     onApprove: async function(data, actions) {
         try {
             const response = await fetch(`/api/orders/${data.orderID}/capture`, {
@@ -41,18 +35,11 @@ paypal.Buttons({
             });
     
             const orderData = await response.json();
-            
-            // Redirect to a success page instead of the invoice directly
-            window.location.href = `/order-success?orderId=${orderData.id}`;
+            const transaction = orderData.purchase_units[0].payments.captures[0];
+            window.location.href = `/checkout/Paypal/${orderData.id}/${transaction.id}`;
         } catch (error) {
             console.error("Error processing payment:", error);
             alert("Payment error occurred");
         }
-    }
-    ,
-
-    onError: function(err) {
-        console.error("PayPal Error:", err);
-        alert("There was an error with PayPal. Please try again.");
-    }
+    }    
 }).render("#paypal-button-container");

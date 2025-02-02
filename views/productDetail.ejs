@@ -133,9 +133,9 @@
     <div class="row">
         <div class="col-md-6 product-images">
             <img src="/images/<%= product.Image %>" alt="<%= product.Name %> - Main Image">
-            <% if (product.Image1) { %><img src="<%= product.Image1 %>" alt="<%= product.Name %> - Image 1"><% } %>
-            <% if (product.Image2) { %><img src="<%= product.Image2 %>" alt="<%= product.Name %> - Image 2"><% } %>
-            <% if (product.Image3) { %><img src="<%= product.Image3 %>" alt="<%= product.Name %> - Image 3"><% } %>
+            <% if (product.Image1) { %><img src="/images/<%= product.Image1 %>" alt="<%= product.Name %> - Image 1"><% } %>
+            <% if (product.Image2) { %><img src="/images/<%= product.Image2 %>" alt="<%= product.Name %> - Image 2"><% } %>
+            <% if (product.Image3) { %><img src="/images/<%= product.Image3 %>" alt="<%= product.Name %> - Image 3"><% } %>
         </div>
 
         <div class="col-md-6">
