@@ -103,26 +103,46 @@ exports.renderAccount = (req, res) => {
 
     const userId = req.session.user.UserID;
 
-    // Get user orders with proper backticks
+    // Get user orders with product details
     const orderSql = `
-        SELECT * FROM \`order\` 
-        WHERE UserID = ? 
-        ORDER BY CreatedAt DESC
+        SELECT oi.orderId, oi.OrderDate, oi.Quantity, oi.Price, oi.Size, 
+               oi.PaymentMethod, oi.transactionId,
+               p.ProductID, p.Name, p.Image
+        FROM orderitem oi
+        JOIN product p ON oi.ProductID = p.ProductID
+        WHERE oi.UserID = ?
+        ORDER BY oi.OrderDate DESC
     `;
 
     db.query(orderSql, [userId], (err, orderResults) => {
         if (err) {
-            console.error('Error fetching orders: ', err);
+            console.error('Error fetching orders:', err);
             return res.status(500).send('Error fetching orders.');
         }
 
+        // Group orders by orderId
+        const groupedOrders = orderResults.reduce((acc, order) => {
+            if (!acc[order.orderId]) {
+                acc[order.orderId] = {
+                    orderId: order.orderId,
+                    orderDate: order.OrderDate,
+                    transactionId: order.transactionId,
+                    paymentMethod: order.PaymentMethod,
+                    items: [],
+                    totalAmount: 0
+                };
+            }
+            acc[order.orderId].items.push(order);
+            acc[order.orderId].totalAmount += order.Price * order.Quantity;
+            return acc;
+        }, {});
+
         res.render('account', {
             user: req.session.user,
-            orders: orderResults
+            orders: Object.values(groupedOrders)
         });
     });
 };
-
 
 exports.renderEditAccount = (req, res) => {
     if (!req.session.user) {

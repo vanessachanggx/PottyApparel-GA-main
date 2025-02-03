@@ -98,15 +98,14 @@ app.get('/checkout', cartController.checkout);
 
 //Order
 app.get('/invoice', orderController.generateInvoice);
-app.get('/orders', orderController.getOrders); // for admin
-
+app.get('/orders', orderController.getOrders);
+app.get('/invoice/:orderId', orderController.generateInvoice);
 
 //Paypal
 app.use(express.json());
-
 app.post('/api/orders', paypalController.createOrderHandler);
 app.post('/api/orders/:orderID/capture', paypalController.captureOrderHandler);
-app.get("/checkout/paypal/:orderId/:transactionId", cartController.checkout);
+app.get("/checkout/:paymentMethod/:orderId/:transactionId", cartController.processPayment);
 
 app.listen(3000, () => {
     console.log('Server is running on http://localhost:3000');
