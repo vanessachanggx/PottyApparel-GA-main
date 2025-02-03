@@ -1,16 +1,11 @@
 const db = require('../db');
 
-exports.getmyOrders = (req, res) => {
-    if (!req.session.user) {
-        return res.redirect('/login');
-    }
-
-    const sql = `
-        SELECT oi.OrderItemID, p.Name, p.Image, p.Price, oi.Quantity, oi.Size
-        FROM orderitem oi
-        JOIN product p ON p.ProductID = oi.ProductID
-        ORDER BY oi.OrderItemID DESC
-    `;
+exports.getOrders = (req, res) => {
+    const sql = `SELECT o.OrderID, o.ProductID, p.ProductName, 
+                 o.Quantity, o.Price, o.Size, o.OrderDate 
+                 FROM orderitem o 
+                 JOIN product p ON o.ProductID = p.ProductID 
+                 ORDER BY o.OrderDate DESC`;
 
     db.query(sql, (error, results) => {
         if (error) {
@@ -18,50 +13,49 @@ exports.getmyOrders = (req, res) => {
         }
 
         if (results.length > 0) {
-            const totalAmount = results.reduce((sum, item) => 
-                sum + (item.Price * item.Quantity), 0
-            );
+            const totalAmount = results.reduce((sum, order) => 
+                sum + (order.Quantity * order.Price), 0);
 
             res.render('viewOrders', { 
                 orders: results, 
-                totalAmount: totalAmount, 
-                msg: "" 
+                totalAmount: totalAmount.toFixed(2)
             });
         } else {
-            res.render('viewOrders', { msg: "No orders" });
+            res.render('viewOrders', { 
+                orders: [], 
+                totalAmount: 0,
+                message: "No orders found" 
+            });
         }
     });
 };
 
-exports.getOrders = (req, res) => {
-    if (!req.session.user || req.session.user.role !== 'admin') {
-        return res.redirect('/401');
-    }
+exports.generateInvoice = (req, res) => {
+    const { orderId } = req.params;
+    
+    const sql = `SELECT o.OrderID, p.ProductName, o.Quantity, 
+                 o.Price, o.Size, o.OrderDate 
+                 FROM orderitem o 
+                 JOIN product p ON o.ProductID = p.ProductID 
+                 WHERE o.OrderID = ?`;
 
-    const sql = `
-        SELECT oi.OrderItemID, p.Name, p.Image, p.Price, oi.Quantity, oi.Size
-        FROM orderitem oi
-        JOIN product p ON p.ProductID = oi.ProductID
-        ORDER BY oi.OrderItemID DESC
-    `;
-
-    db.query(sql, (error, results) => {
+    db.query(sql, [orderId], (error, results) => {
         if (error) {
-            return res.status(500).send('Error retrieving orders');
+            return res.status(500).send('Error generating invoice');
         }
 
         if (results.length > 0) {
             const totalAmount = results.reduce((sum, item) => 
-                sum + (item.Price * item.Quantity), 0
-            );
+                sum + (item.Quantity * item.Price), 0);
 
-            res.render('viewOrders', { 
-                orders: results, 
-                totalAmount: totalAmount, 
-                msg: "" 
+            res.render('invoice', {
+                orderItems: results,
+                totalAmount: totalAmount.toFixed(2),
+                orderId: orderId,
+                orderDate: results[0].OrderDate
             });
         } else {
-            res.render('viewOrders', { msg: "No orders" });
+            res.status(404).send('Order not found');
         }
     });
 };

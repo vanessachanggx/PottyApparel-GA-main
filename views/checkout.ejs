@@ -38,7 +38,9 @@
 
     .cart-item img {
         width: 100px;
+        height: 100px;
         object-fit: cover;
+        border-radius: 8px;
     }
 
     .cart-item .item-details {
@@ -53,15 +55,20 @@
 
     .cart-item .item-details p {
         margin: 0.5rem 0;
+        color: #666;
     }
 
     .order-summary {
         text-align: right;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
     }
 
     .order-summary .total {
         font-weight: bold;
         font-size: 1.2rem;
+        color: #3f2c1b;
     }
 
     .btn-payment {
@@ -69,11 +76,24 @@
         color: white;
         border-radius: 5px;
         width: 100%;
+        padding: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
     }
 
     .btn-payment:hover {
         background-color: #e6e2df;
-        color: black;
+        color: #3f2c1b;
+        transform: translateY(-2px);
+    }
+
+    .product-name {
+        color: #3f2c1b;
+        text-decoration: none;
+    }
+
+    .product-name:hover {
+        color: #666;
     }
 </style>
 </head>
@@ -81,40 +101,37 @@
     <%- include('partial/navbar.ejs') %>
 
     <div class="container">
-        <div class="card">
+        <div class="card shadow">
             <div class="row fs-1 text-center mb-4">
                 <p>CHECKOUT</p>
             </div>
 
-            <% if (cart.length === 0) { %>
-                <!-- Empty cart message -->
+            <% if (!cart || cart.length === 0) { %>
                 <div class="text-center">
-                    <p>Your shopping cart is empty. <br>
+                    <p>Your shopping cart is empty.<br>
                         <a href="/" class="btn btn-primary mt-3">Start Shopping Now!</a></p>
                 </div>
             <% } else { %>
-                <!-- Loop through the cart items -->
                 <% for (let i = 0; i < cart.length; i++) { %>
-                    <div class="cart-item">
+                    <div class="cart-item shadow-sm">
                         <img src="/images/<%= cart[i].Image %>" alt="<%= cart[i].Name %>">
 
                         <div class="item-details">
-                            <h5><a href="/product/<%= cart[i].ProductId %>" class="product-name"><%= cart[i].Name %></a></h5>
+                            <h5><a href="/product/<%= cart[i].ProductID %>" class="product-name"><%= cart[i].Name %></a></h5>
                             <p>Size: <%= cart[i].Size || 'N/A' %></p>
                             <p>Quantity: <%= cart[i].Quantity %></p>
                         </div>
 
                         <div class="item-price">
-                            <p>Price: $<%= ((parseFloat(cart[i].Price) || 0) * cart[i].Quantity).toFixed(2) %></p>
+                            <p class="fw-bold">$<%= ((parseFloat(cart[i].Price) || 0) * cart[i].Quantity).toFixed(2) %></p>
                         </div>
                     </div>
                 <% } %>
 
-                <!-- Order Summary -->
-                <div class="order-summary mt-4">
-                    <h5>Order Summary</h5>
+                <div class="order-summary mt-4 shadow-sm">
+                    <h5 class="mb-3">Order Summary</h5>
                     <hr>
-                    <div class="d-flex justify-content-between">
+                    <div class="d-flex justify-content-between mb-2">
                         <p>Cart Total</p>
                         <p>$<%= Number(totalAmount).toFixed(2) %></p>
                     </div>
@@ -124,19 +141,15 @@
                     </div>
                 </div>
 
-                        <h6 class="mt-3">Payment Methods</h6>
-                        <div class="row m-3 border-bottom fw-bold">
-                            <div id="paypal-button-container"></div>
-                            <% console.log(cart)%>
-                            <input type="hidden" id="cartProducts" value='<%-JSON.stringify(cart)%>'>
-                            <p id="result-message"></p>
-                            <script src="https://sandbox.paypal.com/sdk/js?client-id=ATQQuSzP7fhPQBdI857o6No3EjYfFdblxq0No5LNnSonJRQwjPq_n3DUOK80Qdqve0PtrEvnGjuOcwcB&components=buttons&currency=SGD">
-                            </script>
-                            <script src="/js/paypal.js"> </script>
-                         </div>
-
-                        <button type="submit" class="btn btn-payment mt-4">Proceed to Payment</button>
-                    </form>
+                <div class="payment-section mt-4">
+                    <h6 class="mb-3">Payment Methods</h6>
+                    <div class="paypal-container mb-4">
+                        <div id="paypal-button-container"></div>
+                        <input type="hidden" id="cartProducts" value='<%-JSON.stringify(cart)%>'>
+                        <p id="result-message"></p>
+                    </div>
+                    <script src="https://sandbox.paypal.com/sdk/js?client-id=ATQQuSzP7fhPQBdI857o6No3EjYfFdblxq0No5LNnSonJRQwjPq_n3DUOK80Qdqve0PtrEvnGjuOcwcB&components=buttons&currency=SGD"></script>
+                    <script src="/js/paypal.js"></script>
                 </div>
             <% } %>
         </div>

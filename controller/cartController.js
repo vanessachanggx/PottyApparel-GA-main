@@ -143,34 +143,120 @@ exports.updateCartProduct = (req, res) => {
     });
 };
 
-exports.getCheckOut = (req, res) => {
-    if (!req.session.user) {
-        req.flash('error', 'You must be logged in to view your account.');
-        return res.redirect('/login');
+exports.checkout = (req, res) => {
+    if (!req.session || !req.session.user) {
+        return res.status(401).redirect('/login');
     }
 
-    const userId = req.session.user.UserID; 
-    console.log('User ID from session: ', userId);
+    const { orderId, transactionId } = req.params;
+    if (!orderId || !transactionId) {
+        return res.status(400).send('Missing order or transaction ID');
+    }
+
+    // Rest of your checkout logic...
+    const UserID = req.session.user.userId;
+    console.log(UserID);
 
     const sql = `
-        SELECT ProductId, Name, Image, Price, Size, Quantity 
-        FROM cart
+        SELECT p.ProductID, p.Name, p.Description, p.Image, p.Price, c.Quantity, c.Size
+        FROM product p
+        JOIN cart c ON p.ProductID = c.ProductID
+        WHERE c.UserID = ?;
     `;
 
-    db.query(sql, [userId], (error, results) => {
+    db.query(sql, [UserID], (error, cartItems) => {
         if (error) {
-            console.error('Database error:', error);
-            return res.status(500).send('Error retrieving products');
+            console.error('Error retrieving cart items:', error);
+            return res.status(500).send('Error retrieving cart items');
         }
 
-        if (results.length > 0) {
-            console.log('All products:', results);
-
-            let totalAmount = results.reduce((sum, item) => sum + item.Price * item.Quantity, 0);
-
-            res.render('checkout', { cart: results, totalAmount: totalAmount, msg: "" });
-        } else {
-            res.render('checkout', { cart: [], totalAmount: 0, msg: "No products in cart" });
+        if (!cartItems || cartItems.length === 0) {
+            return res.status(404).send('Your cart is empty');
         }
+
+        let totalAmount = cartItems.reduce((sum, item) => 
+            sum + (item.Quantity * item.Price), 0);
+
+        const orderDate = new Date();
+        
+        // Begin transaction
+        db.beginTransaction(err => {
+            if (err) {
+                console.error('Error starting transaction:', err);
+                return res.status(500).send('Error processing order');
+            }
+
+            const createOrderSql = `
+                INSERT INTO orders (UserID, TotalAmount, OrderDate, Status)
+                VALUES (?, ?, ?, 'Completed');
+            `;
+
+            db.query(createOrderSql, [UserID, totalAmount, orderDate], (orderError, orderResult) => {
+                if (orderError) {
+                    return db.rollback(() => {
+                        console.error('Error creating order:', orderError);
+                        res.status(500).send('Error creating order');
+                    });
+                }
+
+                const orderItemsSql = `
+                    INSERT INTO orderitem (ProductID, Quantity, Price, Size, OrderDate)
+                    VALUES (?, ?, ?, ?, ?);
+                `;
+
+                // Create order items
+                Promise.all(cartItems.map(item => 
+                    new Promise((resolve, reject) => {
+                        db.query(orderItemsSql, [
+                            item.ProductID,
+                            item.Quantity,
+                            item.Price,
+                            item.Size,
+                            orderDate
+                        ], (itemError) => {
+                            if (itemError) reject(itemError);
+                            else resolve();
+                        });
+                    })
+                ))
+                .then(() => {
+                    // Only clear cart after successful order creation
+                    const orderDate = new Date();
+                    db.query(createOrderSql, [UserID, totalAmount, orderDate], (orderError, orderResult) => {
+                        if (orderError) {
+                            return db.rollback(() => {
+                                res.status(500).send('Error creating order');
+                            });
+                        }
+                        // Continue with order items creation
+
+                                            db.commit(err => {
+                            if (err) {
+                                return db.rollback(() => {
+                                    console.error('Error committing transaction:', err);
+                                    res.status(500).send('Error processing order');
+                                });
+                            }
+
+                            res.render('invoice', {
+                                cart_items: cartItems,
+                                totalAmount: totalAmount.toFixed(2),
+                                userId: UserID,
+                                orderDate: orderDate,
+                                paymentMethod: paymentMethod,
+                                orderId: orderId,
+                                transactionId: transactionId
+                            });
+                        });
+                    });
+                })
+                .catch(error => {
+                    db.rollback(() => {
+                        console.error('Error creating order items:', error);
+                        res.status(500).send('Error creating order items');
+                    });
+                });
+            });
+        });
     });
 };

@@ -3,142 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POTTY APPARELs - Order Details</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Public Sans';
-            background-color: #e6e2df;
-            color: #343a40;
-        }
-        .invoice-container {
-            max-width: 900px;
-            margin: 30px auto;
-            background: white;
-            padding: 40px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-            border-radius: 15px;
-        }
-        .invoice-header {
-            border-bottom: 2px solid #eee;
-            padding-bottom: 30px;
-            margin-bottom: 30px;
-        }
-        .invoice-table {
-            margin: 30px 0;
-        }
-        .total-section {
-            border-top: 2px solid #eee;
-            padding-top: 20px;
-            margin-top: 20px;
-        }
-        .product-image {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 1px solid #eee;
-        }
-        .table {
-            vertical-align: middle;
-        }
-        .customer-info {
-            background-color: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
-        .logo-img {
-            max-width: 150px;
-            height: auto;
-        }
-        .payment-badge {
-            display: inline-block;
-            padding: 8px 15px;
-            background-color: #3f2c1b;
-            color: white;
-            border-radius: 5px;
-            font-size: 0.9rem;
-        }
-        .table thead th {
-            background-color: #3f2c1b;
-            color: white;
-            font-weight: 500;
-        }
-        .product-name {
-            font-weight: 600;
-            color: #3f2c1b;
-        }
-    </style>
+    <title>Invoice</title>
 </head>
-     <body>
-        <%- include('partial/navbar.ejs') %>
-    
-        <div class="invoice-container">
-            <div class="invoice-header">
-                <div class="row align-items-center">
-                    <div class="col-6">
-                        <h2>ORDER DETAILS</h2>
-                        <p>Order ID: <%= OrderItemID %></p>
-                        <p>Transaction ID: <%= transactionId %></p>
-                    </div>
-                    <div class="col-6 text-end">
-                        <img src="/images/logo.jpg" alt="Logo" class="logo-img">
-                    </div>
-                </div>
-            </div>
-    
-        <div class="customer-info">
-            <h5>Customer Details</h5>
-            <p><strong>Name:</strong> <%= user.FirstName %> <%= user.LastName %></p>
-            <p><strong>Email:</strong> <%= user.Email %></p>
-        </div>
-    
-        <div class="invoice-table">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th>Name</th>
-                        <th>Size</th>
-                        <th>Quantity</th>
-                        <th>Price</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% cart.forEach(item => { %>
-                    <tr>
-                        <td>
-                            <img src="/images/<%= item.Image %>" alt="<%= item.Name %>" class="product-image">
-                        </td>
-                        <td class="product-name"><%= item.Name %></td>
-                        <td><%= item.Size %></td>
-                        <td><%= item.Quantity %></td>
-                        <td>$<%= Number(item.Price).toFixed(2) %></td>
-                        <td>$<%= (Number(item.Price) * item.Quantity).toFixed(2) %></td>
-                    </tr>
-                    <% }); %>
-                </tbody>
-            </table>
-        </div>
-    
-        <div class="total-section">
-            <div class="row">
-                <div class="col-6">
-                    <span class="payment-badge">
-                        <i class="fab fa-paypal me-2"></i>
-                        Payment Method: PayPal
-                    </span>
-                </div>
-                <div class="col-6 text-end">
-                    <h5>Total Amount: $<%= Number(totalAmount).toFixed(2) %></h5>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <%- include('partial/footer.ejs') %>
-</body>    
+<body>
+    <h1>Invoice</h1>
+    <p>Order ID: <%= orderId %></p>
+    <p>Transaction ID: <%= transactionId %></p>
+    <p>Order Date: <%= orderDate.toLocaleDateString() %></p>
+    <p>User: <%= user.Name %></p>
+
+    <h2>Items Purchased</h2>
+    <table border ="1">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Description</th>
+                <th>Size</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% cart.forEach(item => { %>
+                <tr>
+                    <td><%= item.Name %></td>
+                    <td><%= item.Description %></td>
+                    <td><%= item.Size %></td>
+                    <td><%= item.Quantity %></td>
+                    <td>$<%= Number(item.Price).toFixed(2) %></td>
+                    <td>$<%= (Number(item.Price) * Number(item.Quantity)).toFixed(2) %></td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+
+    <h3>Total Amount: $<%= totalAmount %></h3>
+</body>
 </html>

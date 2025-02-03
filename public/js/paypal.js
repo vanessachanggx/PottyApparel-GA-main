@@ -1,45 +1,34 @@
 paypal.Buttons({
-    style: {
-        shape: "rect",
-        layout: "vertical",
-        color: "gold",
-        label: "paypal",
-    },
-    createOrder: async function() {
+    createOrder: async function(data, actions) {
         try {
-            const cartProducts = JSON.parse(document.getElementById("cartProducts").value);
             const response = await fetch("/api/orders", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    cart: cartProducts
+                    cart: cart_items,
                 }),
             });
-
+            
             const orderData = await response.json();
             return orderData.id;
         } catch (error) {
-            console.error("Error creating order:", error);
-            throw error;
+            console.error("Error creating PayPal order:", error);
         }
     },
+
     onApprove: async function(data, actions) {
         try {
             const response = await fetch(`/api/orders/${data.orderID}/capture`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                }
             });
-    
-            const orderData = await response.json();
-            const transaction = orderData.purchase_units[0].payments.captures[0];
-            window.location.href = `/checkout/Paypal/${orderData.id}/${transaction.id}`;
+            
+            const captureData = await response.json();
+            // Include both orderID and transactionID in redirect
+            window.location.href = `/checkout/paypal/${captureData.id}/${captureData.purchase_units[0].payments.captures[0].id}`;
         } catch (error) {
-            console.error("Error processing payment:", error);
-            alert("Payment error occurred");
+            console.error("Error capturing PayPal order:", error);
         }
-    }    
-}).render("#paypal-button-container");
+    }
+}).render('#paypal-button-container');
