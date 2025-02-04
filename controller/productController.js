@@ -15,6 +15,20 @@ exports.getproducts = (req, res) => {
     }); 
 }; 
 
+exports.getProducts = (req, res) => { 
+    const sql = 'SELECT * FROM product'; 
+    db.query(sql, (error, results) => { 
+        if (error) { 
+            console.error('Database query error:', error.message);  
+            return res.status(500).send('Error retrieving products');  
+        } 
+
+        console.log('Products fetched:', results); // Debugging
+
+        // Ensure you're passing the correct variable name, e.g., 'products' 
+        res.render('products', { product: results }); 
+    }); 
+}; 
 
 exports.getproduct = (req, res) => {
     const ProductID = req.params.id;

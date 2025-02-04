@@ -1,25 +1,5 @@
 const db = require('../db');
 
-exports.getCategories = (req, res) => {
-    const sql = 'SELECT * FROM category';
-    // Fetch data from MySQL
-    db.query(sql, (error, results) => {
-        if (error) {
-            console.error('Database query error:', error.message);
-            return res.status(500).send('Error retrieving categories');
-        }
-
-        if (results.length > 0) {
-            console.log('All categories:', results[0].Name);
-            res.render('categories', { category: results });
-        } else {
-            // If no category with the given ID was found, 
-            //render a 404 page or handle it accordingly
-            res.status(404).send('No Categories');
-        }
-    });
-};
-
 exports.getCategory = (req, res) => {
     const CategoryID = req.params.id;
 

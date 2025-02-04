@@ -76,32 +76,46 @@
         position: absolute;
         top: 100%;
         left: 0;
-        background-color: #ffffff;
+        background-color: #cfc7c1;
         padding: 20px;
         display: none;
-        width: 300px;
+        width: 1000px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         z-index: 1000;
     }
-
     .mega-menu ul {
-        list-style: none;
-        margin: 0;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
         padding: 0;
+        margin: 0;
+        list-style: none;
+    }
+    
+    .mega-menu ul {
+         margin-bottom: 20px;
+         
     }
 
     .mega-menu ul li {
-        margin-bottom: 10px;
-    }
-
-    .mega-menu ul li a {
         text-decoration: none;
         color: #000;
         font-size: 1rem;
     }
 
     .mega-menu ul li a:hover {
-        color: #3f2c1b;
+        color: black;
+        font-weight: bold;
+    }
+
+    .mega-menu a {
+        text-decoration: none;
+        color: black;
+        font-size: 1rem;
+    }
+
+    .mega-menu a:hover {
+        color: black;
         font-weight: bold;
     }
 
@@ -130,14 +144,21 @@
                     <a class="nav-link" href="#">Shop</a>
                     <!-- Mega Menu -->
                     <div class="mega-menu">
-                        <h5>Categories</h5>
+                        <h5><b>Categories</b></h5>
+                        <br>
                         <ul>
                             <li><a href="/category/1">Tops</a></li>
                             <li><a href="/category/2">Bottoms</a></li>
                             <li><a href="#">Dresses</a></li>
                             <li><a href="#">Outerwear</a></li>
                             <li><a href="#">Accessories</a></li>
-                            <li><a href="/categories">View All Categories</a></li>
+                        </ul>
+                        <ul>
+                            <li><b>
+                                <a href="/#">Potty'25 Collection (Coming Soon)</a>
+                                <br>
+                                <a href="/products">Shop All</a>
+                            </li></b>
                         </ul>
                     </div>
                 </li>

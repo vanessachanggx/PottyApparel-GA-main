@@ -89,6 +89,7 @@ app.post('/addUser', checkAdmin, upload.single('Image'), controllers.user.addUse
 
 // Product Routes
 app.get('/', checkAuthenticated,controllers.product.getproducts);
+app.get('/products', checkAuthenticated,controllers.product.getProducts);
 app.get('/product/:id',checkAuthenticated, controllers.product.getproduct);
 app.get('/adminpage', checkAdmin, controllers.product.getAdminPage);
 app.get('/productForm', checkAdmin, controllers.product.addProductForm);
@@ -98,7 +99,6 @@ app.post('/editProduct/:id', checkAdmin, upload.array('images', 4), controllers.
 app.get('/deleteProduct/:id', checkAdmin, controllers.product.deleteProduct);
 
 // Category Routes
-app.get('/categories',checkAuthenticated, controllers.category.getCategories);
 app.get('/category/:id', checkAuthenticated,controllers.category.getCategory);
 app.get('/admin/categories', checkAdmin, controllers.category.getAdminCategories);
 app.get('/admin/category/:id', checkAdmin, controllers.category.getAdminCategory);
