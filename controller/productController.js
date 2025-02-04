@@ -18,21 +18,52 @@ exports.getproducts = (req, res) => {
 
 exports.getproduct = (req, res) => {
     const ProductID = req.params.id;
-    console.log('Product ID:', ProductID);  // Debugging product ID
-    const sql = 'SELECT * FROM product WHERE ProductID = ?';
     
-    db.query(sql, [ProductID], (error, results) => {
+    const productSql = `
+        SELECT p.*, 
+               COALESCE(AVG(r.reviewRating), 0) as averageRating,
+               COUNT(r.reviewId) as reviewCount
+        FROM product p
+        LEFT JOIN reviews r ON p.ProductID = r.ProductID
+        WHERE p.ProductID = ?
+        GROUP BY p.ProductID
+    `;
+
+    const reviewsSql = `
+        SELECT r.reviewId, r.reviewContent, r.reviewRating, 
+               r.reviewImage, r.reviewDate, 
+               u.FirstName, u.LastName, u.Image as userImage
+        FROM reviews r
+        JOIN user u ON r.reviewedByUserId = u.UserID
+        WHERE r.ProductID = ?
+        ORDER BY r.reviewDate DESC
+    `;
+
+    db.query(productSql, [ProductID], (error, productResults) => {
         if (error) {
-            console.error('Database query error:', error.message);
+            console.error('Database query error:', error);
             return res.status(500).send('Error retrieving product details');
         }
-        if (results.length > 0) {
-            res.render('productDetail', { product: results[0] });
-        } else {
+
+        if (productResults.length === 0) {
             return res.status(404).send('Product not found');
         }
+
+        db.query(reviewsSql, [ProductID], (reviewError, reviewResults) => {
+            if (reviewError) {
+                console.error('Database query error:', reviewError);
+                return res.status(500).send('Error retrieving reviews');
+            }
+
+            res.render('productDetail', {
+                product: productResults[0],
+                reviews: reviewResults,
+                user: req.session.user
+            });
+        });
     });
 };
+
 
 exports.getAdminPage = (req, res) => {
     const sql = 'SELECT * FROM product'; 

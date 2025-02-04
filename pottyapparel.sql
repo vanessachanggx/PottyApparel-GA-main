@@ -1,17 +1,23 @@
-DROP TABLE IF EXISTS `orders`;
+DROP TABLE IF EXISTS `orderitem`;
 
 
 CREATE TABLE `orderitem` (
     `orderId` int NOT NULL AUTO_INCREMENT,
+    `UserID` int NOT NULL,
     `ProductID` int NOT NULL,
+    `PaymentMethod` varchar(225) NOT NULL,
+    `transactionId` varchar(225) NOT NULL,
     `Quantity` int NOT NULL,
     `Price` decimal(10,2) NOT NULL,
     `Size` varchar(50) NOT NULL,
     `OrderDate` datetime NOT NULL,
     PRIMARY KEY (`orderId`),
     KEY `ProductID` (`ProductID`),
-    CONSTRAINT `orderitem_product_fk` FOREIGN KEY (`ProductID`) REFERENCES `product` (`ProductID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    CONSTRAINT `orderitem_product_fk` FOREIGN KEY (`ProductID`) REFERENCES `product` (`ProductID`),
+    CONSTRAINT `orderitem_user_fk` FOREIGN KEY (`UserID`) REFERENCES `user` (`UserID`)
+);
+
+
 
 SELECT * FROM orderitem;
 

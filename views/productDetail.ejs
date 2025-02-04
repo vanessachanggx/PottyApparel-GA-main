@@ -17,19 +17,37 @@
         padding: 0;
     }
 
+    .product-container {
+        display: flex;
+        align-items: stretch;
+        min-height: 600px; /* Set a minimum height */
+    }
+    
     .product-images {
         display: flex;
         gap: 15px;
         flex-wrap: wrap;
+        height: 100%;
     }
-
+    
     .product-images img {
         width: 100%;
         max-width: 300px;
-        height: auto;
+        height: 300px; /* Fixed height for images */
         object-fit: cover;
     }
-
+    
+    .product-details.card {
+        height: 100%; /* Make card fill full height */
+        margin-bottom: 0;
+    }
+    
+    .card-body {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    
     .size-selector {
         display: flex;
         gap: 10px;
@@ -66,7 +84,7 @@
         font-size: 16px;
         cursor: pointer;
         margin-top: 20px;
-        display: inline-block;
+        margin-right: 50px;
     }
 
     .btn-back:hover {
@@ -125,21 +143,71 @@
         background-color: #3f2c1b;
         color: white;
     }
+    
+    .review-card {
+        border-bottom: 1px solid #dee2e6;
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 15px;
+        margin-bottom: 1rem;
+        width: 90%;  /* Reduced from 70% */
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .row.mt-5 {
+        display: flex;
+        justify-content: center;
+        padding: 0 30px;  /* Reduced padding */
+        width: 93%;  /* Reduced from 70% */
+        margin-left: auto;
+        margin-right: auto;
+        border-radius: 15px;
+    }
+    
+    .review-image {
+        max-width: 200px;
+        border-radius: 8px;
+        margin-top: 10px;
+    }
+    
+    .btn-custom {
+        background-color: #3f2c1b;
+        color: white;
+        border: none;
+    }
+    
+    .btn-custom:hover {
+        background-color: #e6e2df;
+        color: #3f2c1b;
+    }
+    
+    .rating {
+        margin: 5px 0;
+    }
+    
+    
   </style>
 </head>
 <body>
   <%- include('partial/navbar.ejs') %>
+  <a href="/product" class="btn btn-back">Back to Products</a>
   <div class="container mt-3">
-    <div class="row">
+    <div class="row product-container">
         <div class="col-md-6 product-images">
             <img src="/images/<%= product.Image %>" alt="<%= product.Name %> - Main Image">
-            <% if (product.Image1) { %><img src="/images/<%= product.Image1 %>" alt="<%= product.Name %> - Image 1"><% } %>
-            <% if (product.Image2) { %><img src="/images/<%= product.Image2 %>" alt="<%= product.Name %> - Image 2"><% } %>
-            <% if (product.Image3) { %><img src="/images/<%= product.Image3 %>" alt="<%= product.Name %> - Image 3"><% } %>
+            <% if (product.Image1) { %>
+                <img src="/images/<%= product.Image1 %>" alt="<%= product.Name %> - Image 1">
+            <% } %>
+            <% if (product.Image2) { %>
+                <img src="/images/<%= product.Image2 %>" alt="<%= product.Name %> - Image 2">
+            <% } %>
+            <% if (product.Image3) { %>
+                <img src="/images/<%= product.Image3 %>" alt="<%= product.Name %> - Image 3">
+            <% } %>
         </div>
-
         <div class="col-md-6">
-            <div class="product-details card mb-3">
+            <div class="product-details card">
                 <div class="card-body">
                     <h4><b><%= product.Name %></b></h4>
                     <p><%= product.Description %></p>
@@ -176,10 +244,111 @@
                     <p>Available Stocks Left: <%= product.Stock %> Pieces</p>
                 </div>
             </div>
-            <a href="/product" class="btn btn-back">Back to Products</a>
         </div>
     </div>
-  </div>
+</div>
+  <!-- Add Reviews Section -->
+  <div class="row mt-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Customer Reviews</h4>
+                <% if (user) { %>
+                    <button class="btn btn-custom" data-bs-toggle="modal" data-bs-target="#addReviewModal">
+                        Write a Review
+                    </button>
+                <% } %>
+            </div>
+            <div class="card-body">
+                <% if (reviews && reviews.length > 0) { %>
+                    <% reviews.forEach(review => { %>
+                        <div class="review-card mb-4">
+                            <div class="d-flex align-items-center mb-2">
+                                <div>
+                                    <h5 class="mb-0"><%= review.FirstName %> <%= review.LastName %></h5>
+                                    <div class="rating">
+                                        <% for(let i = 0; i < review.reviewRating; i++) { %>
+                                            <i class="fas fa-star text-warning"></i>
+                                        <% } %>
+                                        <% for(let i = review.reviewRating; i < 5; i++) { %>
+                                            <i class="far fa-star text-warning"></i>
+                                        <% } %>
+                                    </div>
+                                    <small class="text-muted">
+                                        <%= new Date(review.reviewDate).toLocaleDateString() %>
+                                    </small>
+                                    
+                                </div>
+                            </div>
+                            <p class="mb-2"><%= review.reviewContent %></p>
+                            <% if (review.reviewImage) { %>
+                                <img src="/images/<%= review.reviewImage %>" 
+                                     alt="Review Image" 
+                                     class="review-image">
+                            <% } %>
+                        </div>
+                        <% if (user && user.UserID === review.reviewedByUserId) { %>
+                            <div class="mt-2">
+                                <button class="btn btn-sm btn-custom me-2" 
+                                        onclick="window.location.href='/review/edit/<%= review.reviewId %>'">
+                                    Edit
+                                </button>
+                                <button class="btn btn-sm btn-danger" 
+                                        onclick="confirmDelete('<%= review.reviewId %>')">
+                                    Delete
+                                </button>
+                            </div>
+                        <% } %>
+                    </div>
+                    <% }); %>
+                <% } else { %>
+                    <p class="text-center">No reviews yet. Be the first to review this product!</p>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<!-- Add Review Modal -->
+<% if (user) { %>
+
+    <div class="modal fade" id="addReviewModal" tabindex="-1">
+<div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Write a Review</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <form action="/product/<%= product.ProductID %>" method="POST" enctype="multipart/form-data">
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="rating">Rating:</label>
+                    <select name="reviewRating" id="rating" class="form-select" required>
+                        <option value="5">5 Stars</option>
+                        <option value="4">4 Stars</option>
+                        <option value="3">3 Stars</option>
+                        <option value="2">2 Stars</option>
+                        <option value="1">1 Star</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="review">Your Review:</label>
+                    <textarea name="reviewContent" id="review" class="form-control" rows="4" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="reviewImage">Add Photo (optional):</label>
+                    <input type="file" name="reviewImage" id="reviewImage" class="form-control" accept="image/*">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-custom">Submit Review</button>
+            </div>
+        </form>
+    </div>
+</div>
+</div>
+<% } %>
 
 <script>
     function validateQuantity() {
@@ -212,6 +381,11 @@
         const selectedOption = Array.from(sizeOptions).find(option => option.innerText === Size);
         selectedOption.classList.add('selected');
     }
+        function confirmDelete(reviewId) {
+            if (confirm('Are you sure you want to delete this review?')) {
+                window.location.href = `/review/delete/${reviewId}`;
+            }
+        }
 </script>
 
   <%- include('partial/footer.ejs') %>

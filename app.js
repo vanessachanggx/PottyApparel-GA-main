@@ -4,109 +4,144 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const app = express();
 
-
 // Set up multer for file uploads
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'public/images'); 
+        cb(null, 'public/images');
     },
     filename: (req, file, cb) => {
-        cb(null, file.originalname);
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + '-' + file.originalname);
     }
 });
-const upload = multer({ storage: storage }); // Use the storage configuration
 
-// Set up view engine
+const upload = multer({ 
+    storage: storage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only image files are allowed'));
+        }
+    }
+});
+
+// Middleware Setup
 app.set('view engine', 'ejs');
-
-// Enable static files
 app.use(express.static('public'));
-
-// Enable form processing
-app.use(express.urlencoded({
-    extended: false
-}));
-
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 app.use(flash());
 
+// Session Configuration
 app.use(session({
-    secret: 'secret',  // Change this to a secret string for better security
-    resave: false,              // Don't save session if unmodified
-    saveUninitialized: true,    // Save sessions that are new but haven't been modified
-    cookie: { maxAge: 1000 * 60 * 60 * 24 * 7 }  // If using https, set `secure: true`
+    secret: process.env.SESSION_SECRET || 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { 
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    }
 }));
 
+// Make session available in templates
 app.use((req, res, next) => {
     res.locals.session = req.session;
+    res.locals.user = req.session.user || null;
     next();
 });
 
-// Controllers
-const productController = require('./controller/productController');
-const userController = require('./controller/userController');
-const categoryController = require('./controller/categoryController');
-const cartController = require('./controller/cartController');
-const orderController = require('./controller/orderController');
-const paypalController = require('./controller/paypalController.js');
+// Import Controllers
+const controllers = {
+    product: require('./controller/productController'),
+    user: require('./controller/userController'),
+    category: require('./controller/categoryController'),
+    cart: require('./controller/cartController'),
+    order: require('./controller/orderController'),
+    review: require('./controller/reviewController'),
+    paypal: require('./controller/paypalController')
+};
 
-
-// Import middleware
+// Import Middleware
 const { checkAuthenticated, checkAdmin, checkUser } = require('./middleware/auth');
 const { validateRegistration, validateLogin } = require('./middleware/validation');
 
-//Route
+// User Routes
+app.get('/pottyApparels', controllers.user.GetpottyApparels);
+app.get('/register', controllers.user.renderRegister);
+app.post('/register', upload.single('Image'), validateRegistration, controllers.user.register);
+app.get('/login',controllers.user.renderLogin)
+app.post('/login', validateLogin, controllers.user.login);
+app.get('/logout', checkAuthenticated, controllers.user.logout);
+app.get('/account', checkAuthenticated, controllers.user.renderAccount);
+app.get('/editAccount', checkAuthenticated, controllers.user.renderEditAccount);
+app.post('/account', checkAuthenticated, upload.single('Image'), controllers.user.editAccount);
+app.get('/users', checkAdmin, controllers.user.getUsers);
+app.get('/user/:id', checkAdmin,controllers.user.getUser);
+app.get('/editUser/:id', checkAdmin, controllers.user.editUserForm);
+app.post('/editUser/:id', checkAdmin, upload.single('Image'), controllers.user.editUser);
+app.get('/deleteUser/:id', checkAdmin, controllers.user.deleteUser);
+app.get('/addUser', checkAdmin, controllers.user.addUserForm);
+app.post('/addUser', checkAdmin, upload.single('Image'), controllers.user.addUser);
 
-//user
-app.get('/pottyApparels', userController.GetpottyApparels);
-app.get('/register',userController.renderRegister)
-app.post('/register', upload.single('Image'), userController.register);
-app.get('/login',userController.renderLogin)
-app.post('/login',userController.login)
-app.get('/account', userController.renderAccount);
-app.get('/editAccount', userController.renderEditAccount)
-app.post('/account',upload.single('Image'),userController.editAccount);
+
+// Product Routes
+app.get('/', checkAuthenticated,controllers.product.getproducts);
+app.get('/product/:id',checkAuthenticated, controllers.product.getproduct);
+app.get('/adminpage', checkAdmin, controllers.product.getAdminPage);
+app.get('/productForm', checkAdmin, controllers.product.addProductForm);
+app.post('/adminpage', checkAdmin, upload.array('images', 4), controllers.product.addProduct);
+app.get('/editProduct/:id', checkAdmin, controllers.product.editProductForm);
+app.post('/editProduct/:id', checkAdmin, upload.array('images', 4), controllers.product.editProduct);
+app.get('/deleteProduct/:id', checkAdmin, controllers.product.deleteProduct);
+
+// Category Routes
+app.get('/categories',checkAuthenticated, controllers.category.getCategories);
+app.get('/category/:id', checkAuthenticated,controllers.category.getCategory);
+app.get('/admin/categories', checkAdmin, controllers.category.getAdminCategories);
+app.get('/admin/category/:id', checkAdmin, controllers.category.getAdminCategory);
+app.get('/addCategoryForm', checkAdmin, controllers.category.addCategoryForm);
+app.post('/admin/categories', checkAdmin, upload.single('Image'), controllers.category.addCategory);
+app.get('/editCategory/:id', checkAdmin, controllers.category.editCategoryForm);
+app.post('/editCategory/:id', checkAdmin, upload.single('Image'), controllers.category.editCategory);
+app.get('/deleteCategory/:id', checkAdmin, controllers.category.deleteCategory);
+
+// Cart Routes
+app.get('/cart', [checkAuthenticated, checkUser], controllers.cart.getCart);
+app.post('/cart', [checkAuthenticated, checkUser], upload.single('Image'), controllers.cart.addToCartForm);
+app.get('/removeFromCart/:id', [checkAuthenticated, checkUser], controllers.cart.removeFromCart);
+app.post('/updateCartProduct/:id', [checkAuthenticated, checkUser], controllers.cart.updateCartProduct);
+app.get('/checkout', [checkAuthenticated, checkUser], controllers.cart.checkout);
+
+// Order Routes
+app.get('/invoice', checkAuthenticated, controllers.order.generateInvoice);
+app.get('/orders', checkAdmin, controllers.order.getOrders);
+app.get('/invoice/:orderId', checkAuthenticated, controllers.order.generateInvoice);
+app.get('/invoice2/:orderId', [checkAuthenticated,checkAdmin ], controllers.order.generateInvoice2);
+app.get('/viewOrders', checkAdmin, controllers.order.getOrders);
 
 
-//product
-app.get('/', productController.getproducts);
-//app.get('/search',productController,searchProduct);
-app.get('/product/:id', productController.getproduct);
-app.get('/adminpage', productController.getAdminPage);
-app.get('/productForm', productController.addProductForm);
-app.post('/adminpage', upload.array('images', 4), productController.addProduct);
-app.get('/editProduct/:id', productController.editProductForm);
-app.post('/editProduct/:id', upload.array('images', 4), productController.editProduct);
-app.get('/deleteProduct/:id', productController.deleteProduct);
+// PayPal Routes
+app.post('/api/orders', [checkAuthenticated, checkUser], controllers.paypal.createOrderHandler);
+app.post('/api/orders/:orderID/capture', [checkAuthenticated, checkUser], controllers.paypal.captureOrderHandler);
+app.get('/checkout/:paymentMethod/:orderId/:transactionId', [checkAuthenticated, checkUser], controllers.cart.processPayment);
 
-//Category
-app.get('/categories', categoryController.getCategories);
-app.get('/category/:id', categoryController.getCategory);
-app.get('/admin/categories', categoryController.getAdminCategories);
-app.get('/admin/category/:id', categoryController.getAdminCategory);
-app.get('/addCategoryForm', categoryController.addCategoryForm);
-app.post('/admin/categories', upload.single('Image'),categoryController.addCategory);
-app.get('/editCategory/:id', categoryController.editCategoryForm);
-app.post('/editCategory/:id', upload.single('Image'), categoryController.editCategory);
-app.get('/deleteCategory/:id', categoryController.deleteCategory);
+// Reviews Routes
+app.get('/product/:id', checkAuthenticated, controllers.review.getProductReviews);
+app.post('/product/:id', checkAuthenticated, upload.single('reviewImage'), controllers.review.addReview);
+app.get('/review/edit/:id', checkAuthenticated, controllers.review.editReviewForm);
+app.post('/review/edit/:id', checkAuthenticated, upload.single('reviewImage'), controllers.review.editReview);
+app.get('/review/delete/:id', checkAuthenticated, controllers.review.deleteReview);
 
-//cart
-app.get('/cart', cartController.getCart);
-app.post('/cart',upload.single('Image'), cartController.addToCartForm);
-app.get('/removeFromCart/:id', cartController.removeFromCart);
-app.post('/updateCartProduct/:id', cartController.updateCartProduct);
-app.get('/checkout', cartController.checkout);
+//errors
+app.get('/401', (req, res) => {
+    res.render('401', { errors: req.flash('error') });
+});
 
-//Order
-app.get('/invoice', orderController.generateInvoice);
-app.get('/orders', orderController.getOrders);
-app.get('/invoice/:orderId', orderController.generateInvoice);
-
-//Paypal
-app.use(express.json());
-app.post('/api/orders', paypalController.createOrderHandler);
-app.post('/api/orders/:orderID/capture', paypalController.captureOrderHandler);
-app.get("/checkout/:paymentMethod/:orderId/:transactionId", cartController.processPayment);
-
-app.listen(3000, () => {
-    console.log('Server is running on http://localhost:3000');
+// Start Server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
 });

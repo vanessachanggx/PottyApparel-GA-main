@@ -96,7 +96,7 @@
     <!-- Form Container -->
     <div class="form-container">
         <h1 class="form-title">Edit Account</h1>
-        <form action="/adminpage" method="POST" enctype="multipart/form-data">
+        <form action="/account" method="POST" enctype="multipart/form-data">
             <!-- First Name -->
             <div class="mb-3">
                 <label for="FirstName" class="form-label">First Name</label>
@@ -108,25 +108,12 @@
                 <label for="LastName" class="form-label">Last Name</label>
                 <input type="text" class="form-control" id="LastName" name="LastName" placeholder="Enter your last name" value="<%= user.LastName %>">
             </div>
-
-            <!-- Email -->
-            <div class="mb-3">
-                <label for="Email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="Email" name="Email" placeholder="Enter your email" value="<%= user.Email %>">
-            </div>
-
-            <!-- Phone Number -->
-            <div class="mb-3">
-                <label for="PhoneNumber" class="form-label">Phone Number</label>
-                <input type="text" class="form-control" id="PhoneNumber" name="PhoneNumber" placeholder="Enter your phone number" value="<%= user.PhoneNumber %>">
-            </div>
-
             <!-- Profile Image -->
             <div class="mb-3">
                 <label for="Image" class="form-label">Profile Image</label>
                 <input type="file" class="form-control" id="Image" name="Image" value="<%= user.Image %>">
                 <% if (user.Image) { %>
-                    <img src="/uploads/<%= user.Image %>" alt="Profile Image" width="100">
+                    <img src="/images/<%= user.Image %>" alt="Profile Image" width="100">
                 <% } %>
             </div>
 
