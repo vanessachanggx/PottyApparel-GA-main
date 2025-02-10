@@ -9,103 +9,93 @@
     <link href='https://fonts.googleapis.com/css?family=Public Sans' rel='stylesheet'>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <style>
-        body {
-            font-family: 'Public Sans';
-            background-color: #f8f9fa;
-            color: #343a40;
-        }
-
-        h2 {
-            text-align: center;
-            margin: 20px 0;
-            font-size: 2rem;
-            color: #343a40;
-        }
-
-        .actions {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 20px;
-        }
-
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 20px;
-            padding: 10px;
-        }
-
-        .product-card {
-            text-align: center;
-            background-color: #fff;
-            border: 1px solid #ddd;
-            padding: 15px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s;
-        }
-
-        .product-card:hover {
-            transform: scale(1.05);
-        }
-
-        .product-card img {
-            width: 100%;
-            height: auto;
-            border-radius: 5px;
-            margin-bottom: 10px;
-        }
-
-        .product-card h5 {
-            font-size: 1.2rem;
-            margin: 10px 0;
-            font-weight: bold;
-        }
-
-        .product-card p {
-            font-size: 1rem;
-            color: #555;
-        }
-
-        .btn-group {
-            display: flex;
-            justify-content: center;
-            margin-top: 10px;
-        }
-
-        .btn-group .btn {
-            margin: 0 5px;
-        }
-
-        .back-button {
-            margin: 20px auto;
-            text-align: center;
-        }
-
-    </style>
+            body {
+                font-family: 'Public Sans';
+                background-color: #e6e2df;
+                color: #343a40;
+                margin: 0;
+                padding: 0;
+            }
+        
+            h2 {
+                text-align: center;
+                margin: 20px 0;
+                font-size: 2rem;
+                color: #343a40;
+            }
+        
+           
+            .product-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 20px;
+                padding: 10px;
+                justify-content: center;
+                margin: 0 auto;
+                width: 60%;
+            }
+        
+            .product-card {
+                text-align: center;
+                background-color: #fff;
+                border: 1px solid #000000;
+                padding: 15px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                transition: transform 0.3s;
+                display: flex;
+                flex-direction: column; /* Align items vertically */
+                justify-content: space-between; /* Space items evenly */
+                height: 100%; /* Ensure cards have consistent height */
+            }
+        
+            .product-card:hover {
+                transform: scale(1.05);
+            }
+        
+            .product-card img {
+                width: 100%;
+                height: auto;
+                border-radius: 5px;
+                margin-bottom: 10px;
+            }
+        
+            .product-card h5,
+            .product-card h3 {
+                font-size: 1.2rem;
+                margin: 10px 0;
+                font-weight: bold;
+                min-height: 40px; /* Add minimum height to ensure text lines up */
+                line-height: 1.2;
+            }
+        
+            .product-card p {
+                font-size: 1rem;
+                color: #555;
+                margin-top: auto; /* Push price to the bottom of the card */
+            }
+        
+            .back-button {
+                margin: 20px auto;
+                text-align: center;
+            }
+        
+            .product-link {
+                text-decoration: none; /* Remove underline */
+                color: inherit; /* Inherit text color */
+            }
+        
+            .product-link:hover {
+                text-decoration: none;
+                color: inherit;
+            }
+        </style>
 </head>
 <body>
     <%- include ('partial/navbar.ejs') %>
 
-    <!-- Content Layout -->
     <div class="container mt-4">
         <h2>Category: <%= category.Name %></h2>
 
-        <!-- Admin Actions -->
-        <div class="actions">
-            <a href="/admin/add-product/<%= category.CategoryID %>" class="btn btn-success me-2">
-                <i class="fas fa-plus"></i> Add Product
-            </a>
-            <a href="/admin/edit-category/<%= category.CategoryID %>" class="btn btn-primary me-2">
-                <i class="fas fa-edit"></i> Edit Category
-            </a>
-            <form action="/admin/delete-category/<%= category.CategoryID %>" method="POST" style="display:inline;">
-                <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this category?')">
-                    <i class="fas fa-trash"></i> Delete Category
-                </button>
-            </form>
-        </div>
-
-        <!-- Products List -->
         <% if (products && products.length > 0) { %>
             <div class="product-grid">
                 <% products.forEach(product => { %>
@@ -113,18 +103,6 @@
                         <img src="/images/<%= product.Image %>" alt="<%= product.Name %>">
                         <h5><%= product.Name %></h5>
                         <p>$<%= product.Price %></p>
-
-                        <!-- Product Actions -->
-                        <div class="btn-group">
-                            <a href="/editCategory/<%= product.ProductID %>" class="btn btn-primary">
-                                <i class="fas fa-edit"></i> Edit
-                            </a>
-                            <form action="/deleteCategory/<%= product.ProductID %>" method="POST" style="display:inline;">
-                                <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this product?')">
-                                    <i class="fas fa-trash"></i> Delete
-                                </button>
-                            </form>
-                        </div>
                     </div>
                 <% }); %>
             </div>
@@ -132,7 +110,6 @@
             <p class="text-center mt-4">No products found in this category.</p>
         <% } %>
 
-        <!-- Back Button -->
         <div class="back-button">
             <a href="/admin/categories" class="btn btn-secondary">Back to Categories</a>
         </div>

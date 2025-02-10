@@ -1,28 +1,97 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transaction Failed</title>
+    <title>Transaction Failed - POTTY APPARELs</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href='https://fonts.googleapis.com/css?family=Public Sans' rel='stylesheet'>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        body {
+            font-family: 'Public Sans';
+            background-color: #e6e2df;
+            color: #343a40;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            flex: 1;
+            padding: 2rem;
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .fail-card {
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        h1 {
+            color: #6C4F3D;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        h2 {
+            color: #d9534f;
+            font-size: 2rem;
+            margin-top: 1rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-custom {
+            background-color: #6C4F3D;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.3s;
+            margin-top: 1rem;
+        }
+
+        .btn-custom:hover {
+            background-color: #5b3e2b;
+        }
+
+        .fail-icon {
+            width: 30%;
+            max-width: 150px;
+            height: auto;
+            margin-bottom: 1rem;
+        }
+    </style>
 </head>
-
 <body>
-        <div class="container">
-            <h1>
-                <%= message %>
-            </h1>
-            <p>Please try again later.</p>
+    <%- include('partial/navbar.ejs') %>
 
-            <div className="netsQrPaymentGatewayWebpage">
-                <div className="netsQrTxnFailStatus">
-                    <img src=".././images/redCross.png" height="auto" width="30%" alt="Transaction Fail" />
-                    <h2 className="text">TRANSACTION FAILED</h2>
-                    <div className="button" id="btnFail">
-                    </div>
-                </div>
-            </div>
+    <div class="container">
+        <div class="fail-card">
+            <img src=".././images/redCross.png" class="fail-icon" alt="Transaction Failed" />
+            <h1><%= message %></h1>
+            <h2>TRANSACTION FAILED</h2>
+            <p>We're sorry, but your transaction could not be completed. Please try again later.</p>
+            <a href="/cart" class="btn btn-custom">Return to Cart</a>
         </div>
-</body>
+    </div>
 
+    <%- include('partial/footer.ejs') %>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>

@@ -123,8 +123,13 @@
         font-style: italic;
         margin-top: -10px; /* Optional: adjust spacing if needed */
     }
-    
-
+    .btn-empty {
+        background-color: #3f2c1b;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        cursor: pointer;
+    }
 </style>
 </head>
 <body>
@@ -139,7 +144,8 @@
                 <!-- Empty cart message -->
                 <div class="text-center">
                     <p>Your shopping cart is empty. <br>
-                        <a href="/" class="btn btn-primary mt-3">Start Shopping Now!</a></p>
+                        <br>
+                        <a href="/" class="btn btn-empty">Start Shopping Now!</a></p>
                 </div>
             <% } else { %>
                 <!-- Loop through the cart items -->

@@ -149,9 +149,9 @@
                         <ul>
                             <li><a href="/category/1">Tops</a></li>
                             <li><a href="/category/2">Bottoms</a></li>
-                            <li><a href="#">Dresses</a></li>
-                            <li><a href="#">Outerwear</a></li>
-                            <li><a href="#">Accessories</a></li>
+                            <li><a href="/category/4">Dresses</a></li>
+                            <li><a href="#">Outerwear (Coming Soon)</a></li>
+                            <li><a href="/category/3">Accessories </a></li>
                         </ul>
                         <ul>
                             <li><b>
@@ -162,22 +162,15 @@
                         </ul>
                     </div>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Best Sellers</a>
-                </li>
             </ul>
 
-            <!-- Center Search Bar -->
-            <div class="search-bar">
-                <input type="text" placeholder="Search">
-                <button><i class="fa-solid fa-magnifying-glass"></i></button>
-            </div>
+            <form class="search-bar" action="/search" method="GET">
+                <input type="text" name="query" placeholder="Search for products">
+                <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </form>            
 
             <!-- Right-Side Links -->
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="#"><i class="fa-regular fa-heart"></i></a>
-                </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/cart"><i class="fa fa-cart-shopping"></i></a>
                 </li>

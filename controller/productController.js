@@ -78,6 +78,27 @@ exports.getproduct = (req, res) => {
     });
 };
 
+exports.searchProducts = (req, res) => {
+    const searchQuery = req.query.query;
+    const sql = `
+        SELECT * FROM product 
+        WHERE Name LIKE ? OR Description LIKE ?
+    `;
+    const searchTerm = `%${searchQuery}%`;
+
+    db.query(sql, [searchTerm, searchTerm], (error, results) => {
+        if (error) {
+            console.error('Search error:', error);
+            return res.status(500).send('Error processing your search');
+        }
+
+        res.render('searchResults', {
+            products: results,
+            searchQuery: searchQuery,
+            user: req.session.user
+        });
+    });
+};
 
 exports.getAdminPage = (req, res) => {
     const sql = 'SELECT * FROM product'; 

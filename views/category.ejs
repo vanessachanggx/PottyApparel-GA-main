@@ -15,27 +15,46 @@
             color: #343a40;
             margin: 0;
             padding: 0;
-        }
-    
-        h2 {
+          }
+      
+          .potty-exclusive {
+            text-align: left;
+            margin: 20px 0;
+            margin-left: 10px;
+            font-size: 1.5rem;
+            color: #343a40;
+          }
+      
+          h3 {
             text-align: center;
             margin: 20px 0;
-            font-size: 2rem;
+            font-size: 1.5rem;
             color: #343a40;
-        }
-    
-       
-        .product-grid {
+          }
+      
+          .product-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(3, 1fr); /* Always 3 columns */
             gap: 20px;
             padding: 10px;
             justify-content: center;
             margin: 0 auto;
-            width: 60%;
-        }
-    
-        .product-card {
+            width: 95%;
+          }
+      
+          @media (max-width: 768px) {
+            .product-grid {
+              grid-template-columns: repeat(2, 1fr); /* 2 columns on medium screens */
+            }
+          }
+      
+          @media (max-width: 480px) {
+            .product-grid {
+              grid-template-columns: repeat(1, 1fr); /* 1 column on small screens */
+            }
+          }
+      
+          .product-card {
             text-align: center;
             background-color: #fff;
             border: 1px solid #000000;
@@ -43,59 +62,76 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s;
             display: flex;
-            flex-direction: column; /* Align items vertically */
-            justify-content: space-between; /* Space items evenly */
-            height: 100%; /* Ensure cards have consistent height */
-        }
-    
-        .product-card:hover {
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+          }
+      
+          .product-card:hover {
             transform: scale(1.05);
-        }
-    
-        .product-card img {
+          }
+      
+          .product-card img {
             width: 100%;
             height: auto;
             border-radius: 5px;
             margin-bottom: 10px;
-        }
-    
-        .product-card h5,
-        .product-card h3 {
+          }
+      
+          .product-card h3 {
             font-size: 1.2rem;
             margin: 10px 0;
             font-weight: bold;
-            min-height: 40px; /* Add minimum height to ensure text lines up */
+            min-height: 40px;
             line-height: 1.2;
-        }
-    
-        .product-card p {
+          }
+      
+          .product-card p {
             font-size: 1rem;
             color: #555;
-            margin-top: auto; /* Push price to the bottom of the card */
-        }
-    
-        .back-button {
-            margin: 20px auto;
-            text-align: center;
-        }
-    
-        .product-link {
-            text-decoration: none; /* Remove underline */
-            color: inherit; /* Inherit text color */
-        }
-    
-        .product-link:hover {
+            margin-top: auto;
+          }
+      
+          .filter-button {
+            display: flex;
+            justify-content: flex-end;
+            margin-right: 20px;
+          }
+      
+          .filter-button button {
+            background-color: #5c4033;
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+          }
+      
+          .filter-button button:hover {
+            background-color: #4a3226;
+          }
+      
+          .product-link {
             text-decoration: none;
             color: inherit;
-        }
+          }
+      
+          .product-link:hover {
+            text-decoration: none;
+            color: inherit;
+          }
     </style>
     
 </head>
 <body>
     <%- include ('partial/navbar.ejs') %>
+    <BR>
+    <div class="back-button">
+        <a href="/" class="btn btn-secondary">Back</a>
+    </div>
 
     <!-- Content Layout -->
-    <div class="content">
+    <div class="potty-exclusive">
         <h2><%= category.Name %></h2>
 
         <% if (category) { %>
@@ -121,10 +157,6 @@
             <p>No category found.</p>
         <% } %>
 
-        <!-- Back Button -->
-        <div class="back-button">
-            <a href="/" class="btn btn-secondary">Back</a>
-        </div>
     </div>
 
     <%- include('partial/footer.ejs') %>

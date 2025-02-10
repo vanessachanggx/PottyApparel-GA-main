@@ -71,6 +71,7 @@ const controllers = {
 // Import Middleware
 const { checkAuthenticated, checkAdmin, checkUser } = require('./middleware/auth');
 const { validateRegistration, validateLogin } = require('./middleware/validation');
+const { render } = require('ejs');
 
 // User Routes
 app.get('/pottyApparels', controllers.user.GetpottyApparels);
@@ -96,6 +97,7 @@ app.post('/addUser', checkAdmin, upload.single('Image'), controllers.user.addUse
 app.get('/', checkAuthenticated,controllers.product.getproducts);
 app.get('/products', checkAuthenticated,controllers.product.getProducts);
 app.get('/product/:id',checkAuthenticated, controllers.product.getproduct);
+app.get('/search', controllers.product.searchProducts);
 app.get('/adminpage', checkAdmin, controllers.product.getAdminPage);
 app.get('/productForm', checkAdmin, controllers.product.addProductForm);
 app.post('/adminpage', checkAdmin, upload.array('images', 4), controllers.product.addProduct);
@@ -140,7 +142,7 @@ app.post('/generateNETSQR', [checkAuthenticated, checkUser], controllers.netsQr.
 app.get("/nets-qr/success", [checkAuthenticated, checkUser], (req, res) => {
     res.render('netsTxnSuccessStatus', { 
         message: 'Transaction Successful!',
-        user: req.session.user 
+        user: req.session.user
     });
 });
 app.get("/nets-qr/fail", [checkAuthenticated, checkUser], (req, res) => {
