@@ -72,23 +72,6 @@
         font-size: 1.2rem;
         color: #3f2c1b;
     }
-
-    .btn-payment {
-        background-color: #3f2c1b;
-        color: white;
-        border-radius: 5px;
-        width: 100%;
-        padding: 12px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-    .btn-payment:hover {
-        background-color: #e6e2df;
-        color: #3f2c1b;
-        transform: translateY(-2px);
-    }
-
     .product-name {
         color: #3f2c1b;
         text-decoration: none;
@@ -97,6 +80,7 @@
     .product-name:hover {
         color: #666;
     }
+
 </style>
 </head>
 <body>
@@ -144,9 +128,20 @@
                 </div>
 
                 <div class="payment-section mt-4">
-                    <h6 class="mb-3">Payment Methods</h6>
+                    <h5 class="mb-3">Payment Methods</h5>
+                    <br>
+                    <h6>NETS QR code</h6>
+                    <form action="/generateNETSQR" method="POST" class="row m-3 border-bottom fw-bold">
+                        <input type="hidden" name="totalAmount" value="<%= totalAmount %>" >
+                        <br>
+                        <button type="submit" style="background-color: red; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px; max-width: 40%">
+                            Pay with NETS
+                        </button>
+                    </form>
+                    <br>
+                    <h6>Payapal</h6>
                     <div class="paypal-container mb-4">
-                        <div id="paypal-button-container"></div>
+                        <div id="paypal-button-container" style="max-width: 40%;"></div>
                         <input type="hidden" id="cartProducts" value='<%-JSON.stringify(cart)%>'>
                         <p id="result-message"></p>
                     </div>

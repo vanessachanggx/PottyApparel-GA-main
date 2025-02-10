@@ -307,7 +307,7 @@ exports.editUser = (req, res) => {
         Image = req.file.filename;
     }
 
-    const query = `
+    const sql = `
         UPDATE user 
         SET FirstName = ?, LastName = ?, Email = ?, PhoneNumber = ?, 
             Image = ?, role = ? 
@@ -316,7 +316,7 @@ exports.editUser = (req, res) => {
 
     const params = [FirstName, LastName, Email, PhoneNumber, Image, role, UserID];
 
-    db.query(query, params, (err, result) => {
+    db.query(sql, params, (err, result) => {
         if (err) {
             console.error('Error updating user:', err.message);
             req.flash('error', 'Failed to update user details');
@@ -383,12 +383,12 @@ exports.addUser = (req, res) => {
         Image = req.file.filename;
     }
 
-    const query = `
+    const sql = `
         INSERT INTO user (FirstName, LastName, Email, Password, PhoneNumber, Image, role)
         VALUES (?, ?, ?, SHA1(?), ?, ?, ?)
     `;
     
-    db.query(query, [FirstName, LastName, Email, Password, PhoneNumber, Image, role], (err, result) => {
+    db.query(sql, [FirstName, LastName, Email, Password, PhoneNumber, Image, role], (err, result) => {
         if (err) {
             if (err.code === 'ER_DUP_ENTRY') {
                 req.flash('error', 'Email already exists');
@@ -402,3 +402,26 @@ exports.addUser = (req, res) => {
         res.redirect('/users');
     });
 };
+
+exports.adminAccount = (req, res) => {
+    const userId = req.session.user.UserID;
+
+    // Get user reviews
+    const reviewSql = `
+        SELECT r.reviewId, r.reviewContent, r.reviewRating, r.reviewImage, 
+               r.reviewDate, p.ProductID, p.Name as productName, p.Image as productImage
+        FROM reviews r
+        JOIN product p ON r.ProductID = p.ProductID
+        WHERE r.reviewedByUserId = ?
+        ORDER BY r.reviewDate DESC
+    `;
+        db.query(reviewSql, [userId], (reviewErr, reviewResults) => {
+            if (reviewErr) {
+                req.flash('error', 'Error fetching reviews');
+                return res.redirect('/');
+            }
+            res.render('adminAccount', {
+                user: req.session.user,
+            });
+        });
+    }

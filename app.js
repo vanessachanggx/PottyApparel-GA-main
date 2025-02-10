@@ -53,6 +53,8 @@ app.use((req, res, next) => {
     next();
 });
 
+require('dotenv').config();
+
 // Import Controllers
 const controllers = {
     product: require('./controller/productController'),
@@ -61,7 +63,9 @@ const controllers = {
     cart: require('./controller/cartController'),
     order: require('./controller/orderController'),
     review: require('./controller/reviewController'),
-    paypal: require('./controller/paypalController')
+    paypal: require('./controller/paypalController'),
+    sales: require('./controller/salesController'),
+    netsQr: require('./controller/netsQrController')
 };
 
 // Import Middleware
@@ -76,6 +80,7 @@ app.get('/login',controllers.user.renderLogin)
 app.post('/login', validateLogin, controllers.user.login);
 app.get('/logout', checkAuthenticated, controllers.user.logout);
 app.get('/account', checkAuthenticated, controllers.user.renderAccount);
+app.get('/adminAccount', [checkAuthenticated, checkAdmin], controllers.user.adminAccount);
 app.get('/editAccount', checkAuthenticated, controllers.user.renderEditAccount);
 app.post('/account', checkAuthenticated, upload.single('Image'), controllers.user.editAccount);
 app.get('/users', checkAdmin, controllers.user.getUsers);
@@ -122,11 +127,28 @@ app.get('/invoice/:orderId', checkAuthenticated, controllers.order.generateInvoi
 app.get('/invoice2/:orderId', [checkAuthenticated,checkAdmin ], controllers.order.generateInvoice2);
 app.get('/viewOrders', checkAdmin, controllers.order.getOrders);
 
+//Sales Route
+app.get('/sales', checkAdmin, controllers.sales.getSalesReport);
 
 // PayPal Routes
 app.post('/api/orders', [checkAuthenticated, checkUser], controllers.paypal.createOrderHandler);
 app.post('/api/orders/:orderID/capture', [checkAuthenticated, checkUser], controllers.paypal.captureOrderHandler);
 app.get('/checkout/:paymentMethod/:orderId/:transactionId', [checkAuthenticated, checkUser], controllers.cart.processPayment);
+
+// NETS QR Routes
+app.post('/generateNETSQR', [checkAuthenticated, checkUser], controllers.netsQr.generateQrCode);
+app.get("/nets-qr/success", [checkAuthenticated, checkUser], (req, res) => {
+    res.render('netsTxnSuccessStatus', { 
+        message: 'Transaction Successful!',
+        user: req.session.user 
+    });
+});
+app.get("/nets-qr/fail", [checkAuthenticated, checkUser], (req, res) => {
+    res.render('netsTxnFailStatus', { 
+        message: 'Transaction Failed. Please try again.',
+        user: req.session.user 
+    });
+});
 
 // Reviews Routes
 app.get('/product/:id', checkAuthenticated, controllers.review.getProductReviews);
